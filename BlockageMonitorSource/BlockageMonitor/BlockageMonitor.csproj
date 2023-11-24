@@ -18,7 +18,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\BlockageMonitorApp\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -31,6 +31,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>blocked.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -46,14 +49,61 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Form1.cs">
+    <Compile Include="Classes\clsIndicator.cs" />
+    <Compile Include="Classes\clsIndicators.cs" />
+    <Compile Include="Classes\clsSeedRow.cs" />
+    <Compile Include="Classes\clsSeedRows.cs" />
+    <Compile Include="Classes\clsTools.cs" />
+    <Compile Include="Classes\UDPcomm.cs" />
+    <Compile Include="frmHelp.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="frmHelp.Designer.cs">
+      <DependentUpon>frmHelp.cs</DependentUpon>
     </Compile>
+    <Compile Include="frmSensors.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmSensors.Designer.cs">
+      <DependentUpon>frmSensors.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmStart.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmStart.Designer.cs">
+      <DependentUpon>frmStart.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmWifi.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmWifi.Designer.cs">
+      <DependentUpon>frmWifi.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Lang.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Lang.resx</DependentUpon>
+    </Compile>
+    <Compile Include="PGNs\PGN254.cs" />
+    <Compile Include="PGNs\PGN32100.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="frmHelp.resx">
+      <DependentUpon>frmHelp.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmSensors.resx">
+      <DependentUpon>frmSensors.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmStart.resx">
+      <DependentUpon>frmStart.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmWifi.resx">
+      <DependentUpon>frmWifi.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Lang.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Lang.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -62,6 +112,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -75,6 +126,48 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\FanOff.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SettingsGear64.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\FanOn.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\UpArrow64.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\DnArrow64.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Alarm1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Save.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\OK64.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Start_Icon_64.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Stop_Normal_Red_Icon_64.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Cancel64.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ConS_SourcesRoll.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\8207905_block_blocked_forbidden_ui_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="blocked.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
