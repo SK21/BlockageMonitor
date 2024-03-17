@@ -7,6 +7,8 @@ namespace BlockageMonitor
     public partial class frmStart : Form
     {
         public readonly int MaxRows = 100;
+        public readonly int MaxModules = 16;
+        public readonly int MaxRowsPerModule = 16;
         public PGN254 AutoSteerPGN;
         public clsModules BlockageModules;
         public clsSeedRows SeedRows;
@@ -21,7 +23,7 @@ namespace BlockageMonitor
         private int cRowCount = 10;
         private int LastRowCount;
         private bool PlayAlarm;
-
+        private int cRowsPerModule = 16;
         public frmStart()
         {
             InitializeComponent();
@@ -44,6 +46,18 @@ namespace BlockageMonitor
             {
                 cBlockSeconds = value;
                 Tls.SaveProperty("BlockSeconds", cBlockSeconds.ToString());
+            }
+        }
+        public int RowsPerModule
+        {
+            get { return cRowsPerModule; }
+            set
+            {
+                if(value>0 && value<=MaxRowsPerModule)
+                {
+                    cRowsPerModule = value;
+                    Tls.SaveProperty("RowsPerModule",cRowsPerModule.ToString());
+                }
             }
         }
 
@@ -97,9 +111,9 @@ namespace BlockageMonitor
 
         private void frmStart_Load(object sender, EventArgs e)
         {
-            //try
-            //{
-            Tls.LoadFormData(this);
+            try
+            {
+                Tls.LoadFormData(this);
             if (Tls.PrevInstance())
             {
                 Tls.ShowHelp(Lang.lgAlreadyRunning, "Help", 3000);
@@ -117,14 +131,15 @@ namespace BlockageMonitor
             {
                 Tls.ShowHelp("UDPagio failed to start.", "", 3000, true, true);
             }
+
             LoadChart();
             UpdateForm();
-            //}
-            //catch (Exception ex)
-            //{
-            //    Tls.ShowHelp("Failed to load properly: " + ex.Message, "Help", 30000, true);
-            //    Close();
-            //}
+            }
+            catch (Exception ex)
+            {
+                Tls.ShowHelp("Failed to load properly: " + ex.Message, "Help", 30000, true);
+                Close();
+            }
         }
 
         private void LoadChart()
@@ -147,6 +162,7 @@ namespace BlockageMonitor
         {
             if (int.TryParse(Tls.LoadProperty("SeedRowCount"), out int rc)) cRowCount = rc;
             if (int.TryParse(Tls.LoadProperty("BlockSeconds"), out int bs)) cBlockSeconds = bs;
+            if(int.TryParse(Tls.LoadProperty("RowsPerModule"),out int rws))cRowsPerModule= rws;
         }
 
         private void networkToolStripMenuItem_Click(object sender, EventArgs e)

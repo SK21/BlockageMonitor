@@ -38,11 +38,7 @@
             this.lbModuleIP = new System.Windows.Forms.Label();
             this.lbSubnet = new System.Windows.Forms.Label();
             this.cbEthernet = new System.Windows.Forms.ComboBox();
-            this.btnSendSubnet = new System.Windows.Forms.Button();
-            this.btnRescan = new System.Windows.Forms.Button();
             this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.btnCancel = new System.Windows.Forms.Button();
-            this.btnClose = new System.Windows.Forms.Button();
             this.DGV = new System.Windows.Forms.DataGridView();
             this.dataSet1 = new System.Data.DataSet();
             this.dataTable1 = new System.Data.DataTable();
@@ -54,6 +50,13 @@
             this.rWstartDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.rWendDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.enabledDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.btnRenumber = new System.Windows.Forms.Button();
+            this.btnCancel = new System.Windows.Forms.Button();
+            this.btnClose = new System.Windows.Forms.Button();
+            this.btnSendSubnet = new System.Windows.Forms.Button();
+            this.btnRescan = new System.Windows.Forms.Button();
+            this.tbRows = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage3.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -70,8 +73,9 @@
             this.tabControl1.Margin = new System.Windows.Forms.Padding(6);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(490, 417);
+            this.tabControl1.Size = new System.Drawing.Size(490, 449);
             this.tabControl1.TabIndex = 148;
+            this.tabControl1.SelectedIndexChanged += new System.EventHandler(this.tabControl1_SelectedIndexChanged);
             // 
             // tabPage3
             // 
@@ -83,7 +87,7 @@
             this.tabPage3.Controls.Add(this.btnRescan);
             this.tabPage3.Location = new System.Drawing.Point(4, 33);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(482, 380);
+            this.tabPage3.Size = new System.Drawing.Size(482, 412);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Network";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -91,7 +95,7 @@
             // lbIP
             // 
             this.lbIP.AutoSize = true;
-            this.lbIP.Location = new System.Drawing.Point(72, 144);
+            this.lbIP.Location = new System.Drawing.Point(79, 172);
             this.lbIP.Name = "lbIP";
             this.lbIP.Size = new System.Drawing.Size(76, 24);
             this.lbIP.TabIndex = 217;
@@ -99,7 +103,7 @@
             // 
             // lbModuleIP
             // 
-            this.lbModuleIP.Location = new System.Drawing.Point(237, 101);
+            this.lbModuleIP.Location = new System.Drawing.Point(244, 129);
             this.lbModuleIP.Name = "lbModuleIP";
             this.lbModuleIP.Size = new System.Drawing.Size(161, 24);
             this.lbModuleIP.TabIndex = 216;
@@ -109,7 +113,7 @@
             // lbSubnet
             // 
             this.lbSubnet.AutoSize = true;
-            this.lbSubnet.Location = new System.Drawing.Point(72, 101);
+            this.lbSubnet.Location = new System.Drawing.Point(79, 129);
             this.lbSubnet.Name = "lbSubnet";
             this.lbSubnet.Size = new System.Drawing.Size(149, 24);
             this.lbSubnet.TabIndex = 215;
@@ -119,40 +123,11 @@
             // 
             this.cbEthernet.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbEthernet.FormattingEnabled = true;
-            this.cbEthernet.Location = new System.Drawing.Point(241, 141);
+            this.cbEthernet.Location = new System.Drawing.Point(248, 169);
             this.cbEthernet.Name = "cbEthernet";
             this.cbEthernet.Size = new System.Drawing.Size(157, 32);
             this.cbEthernet.TabIndex = 212;
             this.cbEthernet.SelectedIndexChanged += new System.EventHandler(this.cbEthernet_SelectedIndexChanged);
-            // 
-            // btnSendSubnet
-            // 
-            this.btnSendSubnet.BackColor = System.Drawing.Color.Transparent;
-            this.btnSendSubnet.FlatAppearance.BorderSize = 0;
-            this.btnSendSubnet.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSendSubnet.Image = global::BlockageMonitor.Properties.Resources.Update4;
-            this.btnSendSubnet.Location = new System.Drawing.Point(146, 204);
-            this.btnSendSubnet.Name = "btnSendSubnet";
-            this.btnSendSubnet.Size = new System.Drawing.Size(72, 72);
-            this.btnSendSubnet.TabIndex = 211;
-            this.btnSendSubnet.UseVisualStyleBackColor = false;
-            this.btnSendSubnet.Click += new System.EventHandler(this.btnSendSubnet_Click);
-            // 
-            // btnRescan
-            // 
-            this.btnRescan.BackColor = System.Drawing.Color.Transparent;
-            this.btnRescan.FlatAppearance.BorderSize = 0;
-            this.btnRescan.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnRescan.Font = new System.Drawing.Font("Tahoma", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnRescan.Image = global::BlockageMonitor.Properties.Resources.Update;
-            this.btnRescan.ImageAlign = System.Drawing.ContentAlignment.BottomCenter;
-            this.btnRescan.Location = new System.Drawing.Point(245, 204);
-            this.btnRescan.Name = "btnRescan";
-            this.btnRescan.Size = new System.Drawing.Size(72, 72);
-            this.btnRescan.TabIndex = 210;
-            this.btnRescan.TextAlign = System.Drawing.ContentAlignment.TopLeft;
-            this.btnRescan.UseVisualStyleBackColor = false;
-            this.btnRescan.Click += new System.EventHandler(this.btnRescan_Click);
             // 
             // tabPage1
             // 
@@ -161,47 +136,10 @@
             this.tabPage1.Margin = new System.Windows.Forms.Padding(6);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(6);
-            this.tabPage1.Size = new System.Drawing.Size(482, 380);
+            this.tabPage1.Size = new System.Drawing.Size(482, 412);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Config";
             this.tabPage1.UseVisualStyleBackColor = true;
-            // 
-            // btnCancel
-            // 
-            this.btnCancel.BackColor = System.Drawing.Color.Transparent;
-            this.btnCancel.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnCancel.Enabled = false;
-            this.btnCancel.FlatAppearance.BorderSize = 0;
-            this.btnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnCancel.Font = new System.Drawing.Font("Tahoma", 14.25F);
-            this.btnCancel.Image = global::BlockageMonitor.Properties.Resources.Cancel64;
-            this.btnCancel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnCancel.Location = new System.Drawing.Point(335, 440);
-            this.btnCancel.Margin = new System.Windows.Forms.Padding(6);
-            this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(72, 72);
-            this.btnCancel.TabIndex = 152;
-            this.btnCancel.TextAlign = System.Drawing.ContentAlignment.TopLeft;
-            this.btnCancel.UseVisualStyleBackColor = false;
-            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
-            // 
-            // btnClose
-            // 
-            this.btnClose.BackColor = System.Drawing.Color.Transparent;
-            this.btnClose.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnClose.FlatAppearance.BorderSize = 0;
-            this.btnClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnClose.Font = new System.Drawing.Font("Tahoma", 14.25F);
-            this.btnClose.Image = global::BlockageMonitor.Properties.Resources.OK;
-            this.btnClose.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.btnClose.Location = new System.Drawing.Point(429, 440);
-            this.btnClose.Margin = new System.Windows.Forms.Padding(6);
-            this.btnClose.Name = "btnClose";
-            this.btnClose.Size = new System.Drawing.Size(72, 72);
-            this.btnClose.TabIndex = 151;
-            this.btnClose.TextAlign = System.Drawing.ContentAlignment.TopLeft;
-            this.btnClose.UseVisualStyleBackColor = false;
-            this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
             // 
             // DGV
             // 
@@ -221,8 +159,11 @@
             this.DGV.Location = new System.Drawing.Point(9, 9);
             this.DGV.Name = "DGV";
             this.DGV.RowHeadersVisible = false;
-            this.DGV.Size = new System.Drawing.Size(464, 362);
+            this.DGV.Size = new System.Drawing.Size(464, 395);
             this.DGV.TabIndex = 147;
+            this.DGV.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DGV_CellClick);
+            this.DGV.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.DGV_CellFormatting);
+            this.DGV.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.DGV_CellValueChanged);
             // 
             // dataSet1
             // 
@@ -264,6 +205,7 @@
             this.moduleIDDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle1;
             this.moduleIDDataGridViewTextBoxColumn.HeaderText = "Module ID";
             this.moduleIDDataGridViewTextBoxColumn.Name = "moduleIDDataGridViewTextBoxColumn";
+            this.moduleIDDataGridViewTextBoxColumn.ReadOnly = true;
             this.moduleIDDataGridViewTextBoxColumn.Width = 120;
             // 
             // rWstartDataGridViewTextBoxColumn
@@ -271,8 +213,9 @@
             this.rWstartDataGridViewTextBoxColumn.DataPropertyName = "RWstart";
             dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
             this.rWstartDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle2;
-            this.rWstartDataGridViewTextBoxColumn.HeaderText = "Row Start";
+            this.rWstartDataGridViewTextBoxColumn.HeaderText = "Start Row";
             this.rWstartDataGridViewTextBoxColumn.Name = "rWstartDataGridViewTextBoxColumn";
+            this.rWstartDataGridViewTextBoxColumn.ReadOnly = true;
             this.rWstartDataGridViewTextBoxColumn.Width = 120;
             // 
             // rWendDataGridViewTextBoxColumn
@@ -280,7 +223,7 @@
             this.rWendDataGridViewTextBoxColumn.DataPropertyName = "RWend";
             dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
             this.rWendDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle3;
-            this.rWendDataGridViewTextBoxColumn.HeaderText = "Row End";
+            this.rWendDataGridViewTextBoxColumn.HeaderText = "End Row";
             this.rWendDataGridViewTextBoxColumn.Name = "rWendDataGridViewTextBoxColumn";
             this.rWendDataGridViewTextBoxColumn.Width = 120;
             // 
@@ -293,11 +236,119 @@
             this.enabledDataGridViewTextBoxColumn.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.enabledDataGridViewTextBoxColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
             // 
+            // btnRenumber
+            // 
+            this.btnRenumber.BackColor = System.Drawing.Color.Transparent;
+            this.btnRenumber.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.btnRenumber.Enabled = false;
+            this.btnRenumber.FlatAppearance.BorderSize = 0;
+            this.btnRenumber.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnRenumber.Font = new System.Drawing.Font("Tahoma", 14.25F);
+            this.btnRenumber.Image = global::BlockageMonitor.Properties.Resources.add;
+            this.btnRenumber.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.btnRenumber.Location = new System.Drawing.Point(251, 472);
+            this.btnRenumber.Margin = new System.Windows.Forms.Padding(6);
+            this.btnRenumber.Name = "btnRenumber";
+            this.btnRenumber.Size = new System.Drawing.Size(72, 72);
+            this.btnRenumber.TabIndex = 153;
+            this.btnRenumber.TextAlign = System.Drawing.ContentAlignment.TopLeft;
+            this.btnRenumber.UseVisualStyleBackColor = false;
+            this.btnRenumber.Click += new System.EventHandler(this.btnRenumber_Click);
+            // 
+            // btnCancel
+            // 
+            this.btnCancel.BackColor = System.Drawing.Color.Transparent;
+            this.btnCancel.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.btnCancel.Enabled = false;
+            this.btnCancel.FlatAppearance.BorderSize = 0;
+            this.btnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnCancel.Font = new System.Drawing.Font("Tahoma", 14.25F);
+            this.btnCancel.Image = global::BlockageMonitor.Properties.Resources.Cancel64;
+            this.btnCancel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.btnCancel.Location = new System.Drawing.Point(335, 472);
+            this.btnCancel.Margin = new System.Windows.Forms.Padding(6);
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Size = new System.Drawing.Size(72, 72);
+            this.btnCancel.TabIndex = 152;
+            this.btnCancel.TextAlign = System.Drawing.ContentAlignment.TopLeft;
+            this.btnCancel.UseVisualStyleBackColor = false;
+            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+            // 
+            // btnClose
+            // 
+            this.btnClose.BackColor = System.Drawing.Color.Transparent;
+            this.btnClose.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.btnClose.FlatAppearance.BorderSize = 0;
+            this.btnClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnClose.Font = new System.Drawing.Font("Tahoma", 14.25F);
+            this.btnClose.Image = global::BlockageMonitor.Properties.Resources.OK;
+            this.btnClose.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.btnClose.Location = new System.Drawing.Point(429, 472);
+            this.btnClose.Margin = new System.Windows.Forms.Padding(6);
+            this.btnClose.Name = "btnClose";
+            this.btnClose.Size = new System.Drawing.Size(72, 72);
+            this.btnClose.TabIndex = 151;
+            this.btnClose.TextAlign = System.Drawing.ContentAlignment.TopLeft;
+            this.btnClose.UseVisualStyleBackColor = false;
+            this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
+            // 
+            // btnSendSubnet
+            // 
+            this.btnSendSubnet.BackColor = System.Drawing.Color.Transparent;
+            this.btnSendSubnet.FlatAppearance.BorderSize = 0;
+            this.btnSendSubnet.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSendSubnet.Image = global::BlockageMonitor.Properties.Resources.Update4;
+            this.btnSendSubnet.Location = new System.Drawing.Point(153, 232);
+            this.btnSendSubnet.Name = "btnSendSubnet";
+            this.btnSendSubnet.Size = new System.Drawing.Size(72, 72);
+            this.btnSendSubnet.TabIndex = 211;
+            this.btnSendSubnet.UseVisualStyleBackColor = false;
+            this.btnSendSubnet.Click += new System.EventHandler(this.btnSendSubnet_Click);
+            // 
+            // btnRescan
+            // 
+            this.btnRescan.BackColor = System.Drawing.Color.Transparent;
+            this.btnRescan.FlatAppearance.BorderSize = 0;
+            this.btnRescan.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnRescan.Font = new System.Drawing.Font("Tahoma", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnRescan.Image = global::BlockageMonitor.Properties.Resources.Update;
+            this.btnRescan.ImageAlign = System.Drawing.ContentAlignment.BottomCenter;
+            this.btnRescan.Location = new System.Drawing.Point(252, 232);
+            this.btnRescan.Name = "btnRescan";
+            this.btnRescan.Size = new System.Drawing.Size(72, 72);
+            this.btnRescan.TabIndex = 210;
+            this.btnRescan.TextAlign = System.Drawing.ContentAlignment.TopLeft;
+            this.btnRescan.UseVisualStyleBackColor = false;
+            this.btnRescan.Click += new System.EventHandler(this.btnRescan_Click);
+            // 
+            // tbRows
+            // 
+            this.tbRows.Location = new System.Drawing.Point(180, 494);
+            this.tbRows.Name = "tbRows";
+            this.tbRows.Size = new System.Drawing.Size(61, 29);
+            this.tbRows.TabIndex = 155;
+            this.tbRows.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.tbRows.TextChanged += new System.EventHandler(this.tbRows_TextChanged);
+            this.tbRows.Enter += new System.EventHandler(this.tbRows_Enter);
+            this.tbRows.Validating += new System.ComponentModel.CancelEventHandler(this.tbRows_Validating);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(15, 496);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(159, 24);
+            this.label1.TabIndex = 154;
+            this.label1.Text = "Rows per Module";
+            // 
             // frmModuleConfig
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(522, 516);
+            this.ClientSize = new System.Drawing.Size(522, 551);
+            this.Controls.Add(this.tbRows);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.btnRenumber);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnClose);
             this.Controls.Add(this.tabControl1);
@@ -305,10 +356,11 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.HelpButton = true;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.Margin = new System.Windows.Forms.Padding(6);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "frmModuleConfig";
+            this.ShowInTaskbar = false;
             this.Text = "Module Config";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmModuleConfig_FormClosed);
             this.Load += new System.EventHandler(this.frmModuleConfig_Load);
@@ -320,6 +372,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataSet1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataTable1)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -347,5 +400,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn rWstartDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn rWendDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewCheckBoxColumn enabledDataGridViewTextBoxColumn;
+        private System.Windows.Forms.Button btnRenumber;
+        private System.Windows.Forms.TextBox tbRows;
+        private System.Windows.Forms.Label label1;
     }
 }

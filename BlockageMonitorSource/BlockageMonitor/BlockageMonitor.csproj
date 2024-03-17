@@ -108,6 +108,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmHelp.resx">
       <DependentUpon>frmHelp.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="frmModuleConfig.resx">
       <DependentUpon>frmModuleConfig.cs</DependentUpon>
@@ -186,6 +187,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="blocked.ico" />
+    <None Include="Resources\add.png" />
     <None Include="Resources\SubnetSend.png" />
     <None Include="Resources\Sec1.PNG" />
     <None Include="Resources\Update4.png" />

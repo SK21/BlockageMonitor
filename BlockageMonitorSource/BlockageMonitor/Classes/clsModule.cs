@@ -11,9 +11,9 @@ namespace BlockageMonitor
     {
         private bool cEdited;
         private bool cEnabled;
-        private int cEndRow;
+        private int cEndRow;    // one based
         private int cID;
-        private int cStartRow;
+        private int cStartRow;  // one based
         private frmStart mf;
         private string Name;
 
@@ -29,7 +29,15 @@ namespace BlockageMonitor
         { get { return cEdited; } }
 
         public bool Enabled
-        { get { return cEnabled; } set { cEnabled = value; } }
+        {
+            get
+            {
+                bool Result = false;
+                if (cID == 0 || (cStartRow != 0 && cEndRow != 0)) Result = cEnabled;
+                return Result;
+            } 
+            set { cEnabled = value; }
+        }
 
         public int EndRow
         {
@@ -63,7 +71,7 @@ namespace BlockageMonitor
 
         public bool IsValid()
         {
-            bool Result = (cStartRow > -1 && cStartRow <= mf.RowCount && cEndRow >= cStartRow && cEndRow <= mf.RowCount);
+            bool Result = (cStartRow > 0 && cStartRow <= mf.SeedRows.Count && cEndRow >= cStartRow && cEndRow <= mf.SeedRows.Count);
             return Result;
         }
 
