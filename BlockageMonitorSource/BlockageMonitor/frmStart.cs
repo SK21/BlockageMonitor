@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -7,69 +6,77 @@ namespace BlockageMonitor
 {
     public partial class frmStart : Form
     {
+        public readonly int MaxRows = 100;
         public PGN254 AutoSteerPGN;
-        public clsIndicators Indicators;
+        public clsModules BlockageModules;
         public clsSeedRows SeedRows;
+        public clsAlarm SensorAlarm;
         public PGN32100 Sensors;
         public clsTools Tls;
         public UDPComm UDPaog;
         public UDPComm UDPsensors;
 
-        private bool AlarmOn;
-        private int cBlockSeconds;
-        private int cIndicatorCount = 10;
-        private int cRowCount;
-        private bool MonitoringOn;
+        private int cBlockSeconds = 10;
+        private bool cMonitoringOn;
+        private int cRowCount = 10;
+        private int LastRowCount;
+        private bool PlayAlarm;
 
         public frmStart()
         {
             InitializeComponent();
             Tls = new clsTools(this);
+            LoadData();
+            UDPsensors = new UDPComm(this, 25600, 25700, 2388, "Sensors");
+            UDPaog = new UDPComm(this, 17777, 15555, 1460, "AOG");
 
-            int.TryParse(Tls.LoadProperty("SeedRowCount"), out int Count);
-            if (Count == 0) Count = 20;
-            cRowCount = Count;
             SeedRows = new clsSeedRows(this, cRowCount);
-
-            int.TryParse(Tls.LoadProperty("BlockSeconds"), out int BS);
-            if (BS == 0) BS = 5;
-            cBlockSeconds = BS;
-
-            Indicators = new clsIndicators(this);
             Sensors = new PGN32100(this);
             AutoSteerPGN = new PGN254(this);
-
-            UDPaog = new UDPComm(this, 17777, 15555, 1460, "127.255.255.255", true, true);  // AOG
-            UDPsensors = new UDPComm(this, 25600, 25700, 2388);    // arduino
-
-            SeedRows.Items[1].Enabled = true;   // test msgbox
+            BlockageModules = new clsModules(this, 16);
+            SensorAlarm = new clsAlarm(this);
         }
 
         public int BlockSeconds
-        { get { return cBlockSeconds; } }
-
-        public int IndicatorCount
-        { get { return cIndicatorCount; } }
+        {
+            get { return cBlockSeconds; }
+            set
+            {
+                cBlockSeconds = value;
+                Tls.SaveProperty("BlockSeconds", cBlockSeconds.ToString());
+            }
+        }
 
         public int RowCount
-        { get { return cRowCount; } }
+        {
+            get { return cRowCount; }
+            set
+            {
+                cRowCount = value;
+                Tls.SaveProperty("SeedRowCount", cRowCount.ToString());
+            }
+        }
 
         private void btnAlarm_Click(object sender, EventArgs e)
         {
-            AlarmOn = !AlarmOn;
-            UpdateButtons();
+            PlayAlarm = !PlayAlarm;
+            SensorAlarm.PlayAlarm(PlayAlarm);
+            SensorAlarm.CheckAlarms();
         }
 
-        private void btnFan2_Click(object sender, EventArgs e)
+        private void btnPower_Click(object sender, EventArgs e)
         {
-            MonitoringOn = !MonitoringOn;
-            timer1.Enabled = MonitoringOn;
-            UpdateButtons();
-            if (MonitoringOn)
+            cMonitoringOn = !cMonitoringOn;
+            timer1.Enabled = cMonitoringOn;
+            if (cMonitoringOn)
             {
-                UpdateGrid();
-                //UpdateMsgBox();
+                SensorAlarm.PlayAlarm(PlayAlarm);
             }
+            else
+            {
+                SensorAlarm.PlayAlarm(false);
+            }
+            UpdateForm();
         }
 
         private void btnSettings_Click(object sender, EventArgs e)
@@ -78,61 +85,31 @@ namespace BlockageMonitor
             Point ptLowerLeft = new Point(0, btnSender.Height);
             ptLowerLeft = btnSender.PointToScreen(ptLowerLeft);
             mnuSettings.Show(ptLowerLeft);
-        }
-
-        private void contextMenuStrip1_Opening(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-        }
-
-        private void DGV_SelectionChanged(object sender, EventArgs e)
-        {
-            DGV.ClearSelection();
+            UpdateForm();
         }
 
         private void frmStart_FormClosed(object sender, FormClosedEventArgs e)
         {
-            try
-            {
-                if (this.WindowState == FormWindowState.Normal)
-                {
-                    Tls.SaveFormData(this);
-                }
-
-                SeedRows.Save();
-                UDPaog.Close();
-                UDPsensors.Close();
-                timer1.Enabled = false;
-
-                Tls.SaveProperty("SeedRowCount", cRowCount.ToString());
-                Tls.SaveProperty("BlockSeconds", cBlockSeconds.ToString());
-            }
-            catch (Exception)
-            {
-            }
-
-            Application.Exit();
+            if (this.WindowState == FormWindowState.Normal) Tls.SaveFormData(this);
+            UDPaog.Close();
+            UDPsensors.Close();
         }
 
         private void frmStart_Load(object sender, EventArgs e)
         {
+            //try
+            //{
             Tls.LoadFormData(this);
             if (Tls.PrevInstance())
             {
                 Tls.ShowHelp(Lang.lgAlreadyRunning, "Help", 3000);
                 this.Close();
             }
-
-            DGV.BackgroundColor = DGV.DefaultCellStyle.BackColor;
-            DGV.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            timer1.Enabled = MonitoringOn;
-            LoadGrid();
-            UpdateButtons();
-
             // UDP
             UDPsensors.StartUDPServer();
             if (!UDPsensors.IsUDPSendConnected)
             {
-                Tls.ShowHelp("UDPnetwork failed to start.", "", 3000, true, true);
+                Tls.ShowHelp("UDPsensors failed to start.", "", 3000, true, true);
             }
 
             UDPaog.StartUDPServer();
@@ -140,68 +117,85 @@ namespace BlockageMonitor
             {
                 Tls.ShowHelp("UDPagio failed to start.", "", 3000, true, true);
             }
-
-            this.BackColor = Properties.Settings.Default.DayColour;
-
-            foreach (Control c in this.Controls)
-            {
-                c.ForeColor = Color.Black;
-            }
+            LoadChart();
+            UpdateForm();
+            //}
+            //catch (Exception ex)
+            //{
+            //    Tls.ShowHelp("Failed to load properly: " + ex.Message, "Help", 30000, true);
+            //    Close();
+            //}
         }
 
-        private void LoadGrid()
+        private void LoadChart()
         {
-            DGV.RowHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            DGV.RowTemplate.Height = 30;
-            //DGV.RowHeadersVisible = false;
+            chart1.ChartAreas[0].AxisY.Maximum = Double.NaN;
+            chart1.ChartAreas[0].AxisY.Minimum = Double.NaN;
+            chart1.ChartAreas[0].RecalculateAxesScale();
+            chart1.ResetAutoValues();
 
-            dataSet1.Clear();
-            foreach (clsIndicator Ind in Indicators.Items)
+            chart1.ChartAreas["ChartArea1"].AxisX.Interval = 1;
+            chart1.ChartAreas["ChartArea1"].AxisX.Maximum = cRowCount + 1;
+            for (int i = 0; i <= cRowCount; i++)
             {
-                DataRow DR = dataSet1.Tables[0].NewRow();
-                dataSet1.Tables[0].Rows.Add(DR);
+                chart1.Series["Series1"].Points.AddXY(i + 1, 0);
             }
-
-            foreach (DataGridViewRow Rw in DGV.Rows)
-            {
-                Rw.HeaderCell.Value = (Rw.Index + 1).ToString();
-            }
-
-            for (int i = 0; i < 11; i++)
-            {
-                DGV.Columns[i].HeaderText = ((10 - i) * -5 - 5).ToString();
-            }
-
-            DGV.Columns[11].HeaderText = DateTime.Now.ToString("hh:mm:ss");
-
-            DGV.ClearSelection();
+            LastRowCount = cRowCount;
         }
 
-        private void mnuSettings_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        private void LoadData()
         {
+            if (int.TryParse(Tls.LoadProperty("SeedRowCount"), out int rc)) cRowCount = rc;
+            if (int.TryParse(Tls.LoadProperty("BlockSeconds"), out int bs)) cBlockSeconds = bs;
         }
 
         private void networkToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form frmWifi = new frmWifi(this);
-            frmWifi.ShowDialog();
+            Form fs = Tls.IsFormOpen("frmModuleConfig");
+
+            if (fs != null)
+            {
+                fs.Focus();
+                return;
+            }
+
+            Form frm = new frmModuleConfig(this);
+            frm.Show();
         }
 
         private void sensorsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form frmSensors = new frmSensors(this);
-            frmSensors.ShowDialog();
+            Form fs = Tls.IsFormOpen("frmSeedRows");
+
+            if (fs != null)
+            {
+                fs.Focus();
+                return;
+            }
+
+            Form frm = new frmSeedRows(this);
+            frm.Show();
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            UpdateGrid();
-            UpdateMsgBox();
+            UpdateForm();
+            SensorAlarm.CheckAlarms();
         }
 
-        private void UpdateButtons()
+        private void UpdateForm()
         {
-            if (AlarmOn)
+            // chart
+            if (cRowCount != LastRowCount) LoadChart();
+
+            chart1.Series["Series1"].Points.Clear();
+            foreach (clsSeedRow RW in SeedRows.Items)
+            {
+                chart1.Series["Series1"].Points.AddXY(RW.ID + 1, RW.RateAverage);
+            }
+
+            // buttons
+            if (PlayAlarm)
             {
                 btnAlarm.Text = "";
             }
@@ -210,53 +204,13 @@ namespace BlockageMonitor
                 btnAlarm.Text = "X";
             }
 
-            if (MonitoringOn)
+            if (cMonitoringOn)
             {
-                btnFan2.Image = Properties.Resources.FanOn;
+                btnPower.Image = Properties.Resources.FanOn;
             }
             else
             {
-                btnFan2.Image = Properties.Resources.FanOff;
-            }
-        }
-
-        private void UpdateGrid()
-        {
-            for (int i = 0; i < 11; i++)
-            {
-                for (int j = 0; j < DGV.Rows.Count; j++)
-                {
-                    DGV.Rows[j].Cells[i].Style.BackColor = DGV.Rows[j].Cells[i + 1].Style.BackColor;
-                }
-            }
-
-            DGV.Columns[11].HeaderText = DateTime.Now.ToString("hh:mm:ss");
-
-            foreach (clsIndicator Ind in Indicators.Items)
-            {
-                if (Ind.Blocked())
-                {
-                    DGV.Rows[Ind.ID].Cells[11].Style.BackColor = Color.Red;
-                }
-                else
-                {
-                    DGV.Rows[Ind.ID].Cells[11].Style.BackColor = Color.LightGreen;
-                }
-            }
-        }
-
-        private void UpdateMsgBox()
-        {
-            foreach (clsSeedRow Rw in SeedRows.Items)
-            {
-                if (Rw.Enabled && !Rw.Notified)
-                {
-                    if (Rw.Blocked())
-                    {
-                        msgBox.AppendText("\r\n" + DateTime.Now.ToString("hh:mm:ss") + ">   Module " + (Rw.ModuleID + 1).ToString() + ",  Seed Row " + (Rw.ID + 1).ToString() + "  blocked.");
-                        Rw.Notified = true;
-                    }
-                }
+                btnPower.Image = Properties.Resources.FanOff;
             }
         }
     }

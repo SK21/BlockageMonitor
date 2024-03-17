@@ -5,6 +5,9 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -16,16 +19,50 @@ namespace BlockageMonitor
         private static Hashtable ht;
         private string cAppName = "BlockageMonitor";
         private string cAppVersion = "1.0.0";
-        private string cVersionDate = "26-Feb-2023";
-
         private string cPropertiesFile;
         private string cSettingsDir;
+        private string cVersionDate = "26-Feb-2023";
         private frmStart mf;
+        private Form[] OpenForms = new Form[30];    // make sure to allocate enough
 
         public clsTools(frmStart CallingForm)
         {
             mf = CallingForm;
             CheckFolders();
+        }
+        private void FormAdd(Form frm)
+        {
+            bool Found = false;
+            for (int i = 0; i < OpenForms.Length; i++)
+            {
+                if (OpenForms[i] != null && OpenForms[i].Name == frm.Name)
+                {
+                    Found = true;
+                    break;
+                }
+            }
+            if (!Found)
+            {
+                for (int i = 0; i < OpenForms.Length; i++)
+                {
+                    if (OpenForms[i] == null)
+                    {
+                        OpenForms[i] = frm;
+                        break;
+                    }
+                }
+            }
+        }
+        private void FormRemove(Form frm)
+        {
+            for (int i = 0; i < OpenForms.Length; i++)
+            {
+                if (OpenForms[i] != null && OpenForms[i].Name == frm.Name)
+                {
+                    OpenForms[i] = null;
+                    break;
+                }
+            }
         }
 
         public string PropertiesFile
@@ -199,6 +236,8 @@ namespace BlockageMonitor
             Frm.Top = Toploc;
 
             IsOnScreen(Frm, true);
+
+            FormAdd(Frm);
         }
 
         public string LoadProperty(string Key)
@@ -288,11 +327,28 @@ namespace BlockageMonitor
                 WriteErrorLog("clsTools: SaveFile: " + ex.Message);
             }
         }
+        public Form IsFormOpen(string Name)
+        {
+            Form Result = null;
+            for (int i = 0; i < OpenForms.Length; i++)
+            {
+                if (OpenForms[i] != null && OpenForms[i].Name == Name)
+                {
+                    Result = OpenForms[i];
+                    break;
+                }
+            }
+            return Result;
+        }
 
         public void SaveFormData(Form Frm)
         {
-            SaveProperty(Frm.Name + ".Left", Frm.Left.ToString());
-            SaveProperty(Frm.Name + ".Top", Frm.Top.ToString());
+            if (Frm.WindowState == FormWindowState.Normal)
+            {
+                SaveProperty(Frm.Name + ".Left", Frm.Left.ToString());
+                SaveProperty(Frm.Name + ".Top", Frm.Top.ToString());
+            }
+            FormRemove(Frm);
         }
 
         public void SaveProperty(string Key, string Value)
@@ -384,6 +440,54 @@ namespace BlockageMonitor
                 return (int)tmp;
             }
             return 0;
+        }
+
+        public bool UDP_BroadcastPGN(byte[] Data, int Port = 28888)
+        {
+            // send UDP
+            // based on AGIO/FormUDP
+            bool Result = false;
+
+            try
+            {
+                IPEndPoint epModuleSet = new IPEndPoint(IPAddress.Parse("255.255.255.255"), Port);
+
+                //loop thru all interfaces
+                foreach (var nic in NetworkInterface.GetAllNetworkInterfaces())
+                {
+                    if (nic.Supports(NetworkInterfaceComponent.IPv4) && nic.OperationalStatus == OperationalStatus.Up)
+                    {
+                        foreach (var info in nic.GetIPProperties().UnicastAddresses)
+                        {
+                            // Only InterNetwork and not loopback which have a subnetmask
+                            if (info.Address.AddressFamily == AddressFamily.InterNetwork &&
+                                !IPAddress.IsLoopback(info.Address) &&
+                                info.IPv4Mask != null)
+                            {
+                                Socket scanSocket;
+                                if (nic.OperationalStatus == OperationalStatus.Up
+                                    && info.IPv4Mask != null)
+                                {
+                                    scanSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                                    scanSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, true);
+                                    scanSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+                                    scanSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontRoute, true);
+                                    scanSocket.Bind(new IPEndPoint(info.Address, 9578));
+                                    scanSocket.SendTo(Data, 0, Data.Length, SocketFlags.None, epModuleSet);
+                                    scanSocket.Dispose();
+                                }
+                            }
+                        }
+                    }
+                }
+                Result = true;
+            }
+            catch (Exception ex)
+            {
+                WriteErrorLog("clsTools/UDP_BroadcastPGN: " + ex.Message);
+            }
+
+            return Result;
         }
 
         public string VersionDate()

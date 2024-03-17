@@ -4,61 +4,71 @@ namespace BlockageMonitor
 {
     public class clsSeedRow
     {
+        private bool cEdited;
         private bool cEnabled;
         private int cID;
-        private int cIndicatorNumber;
+        private bool cNotified;
+        private byte cRate;
+        private byte cRateAve;
         private DateTime cReceiveTime;
-        private bool cSensorConnected;
         private frmStart mf;
         private string Name;
-        private bool cNotified;
-        private int cModuleID;
 
         public clsSeedRow(frmStart CF, int ID)
         {
             mf = CF;
             cID = ID;
-            Name = "SeedRow" + cID.ToString();
-            //cReceiveTime= DateTime.Now;
+            Name = "SeedRow" + ID.ToString();
+            cEnabled = true;
         }
 
         public bool Enabled
-        { get { return cEnabled; } set { cEnabled = value; } }
+        {
+            get { return cEnabled; }
+            set
+            {
+                if (cEnabled != value) cEdited = true;
+                cEnabled = value;
+            }
+        }
+        public int ModuleID
+        {
+            get
+            {
+                int Result = 0;
+                foreach (clsModule Md in mf.BlockageModules.Items)
+                {
+                    if (ID >= Md.StartRow && ID <= Md.EndRow)
+                    {
+                        Result = Md.ID;
+                        break;
+                    }
+                }
+                return Result;
+            }
+        }
+
         public int ID
         { get { return cID; } }
 
-        public int ModuleID
+        public bool Notified
+        { get { return cNotified; } set { cNotified = value; } }
+
+        public byte Rate
         {
-            get { return cModuleID; }
+            get { return cRate; }
             set
             {
-                cModuleID = value;
+                cRate = value;
+                cRateAve = (byte)(cRateAve * 0.8 + value * 0.2);
             }
         }
 
-        public int IndicatorNumber
-        {
-            get { return cIndicatorNumber; }
-            set
-            {
-                if (value < mf.IndicatorCount)
-                {
-                    cIndicatorNumber = value;
-                }
-                else
-                {
-                    throw new ArgumentException();
-                }
-            }
-        }
+        public byte RateAverage
+        { get { return cRateAve; } }
 
         public DateTime ReceiveTime
         { get { return cReceiveTime; } set { cReceiveTime = value; } }
-
-        public bool SensorConnected
-        { get { return cSensorConnected; } set { cSensorConnected = value; } }
-
-        public bool Notified { get { return cNotified; } set { cNotified = value; } }
 
         public bool Blocked()
         {
@@ -71,23 +81,16 @@ namespace BlockageMonitor
 
         public void Load()
         {
-            if (int.TryParse(mf.Tls.LoadProperty(Name + "_IndicatorNumber"), out int ID))
-            {
-                cIndicatorNumber = ID;
-            }
-            else
-            {
-                // new record
-                int RowsPerIndicator = mf.RowCount / mf.IndicatorCount;
-                int NewID = (cID + ModuleID * 16) / RowsPerIndicator;
-                if (NewID > mf.IndicatorCount - 1) NewID = mf.IndicatorCount - 1;
-                cIndicatorNumber = NewID;
-            }
+            if (bool.TryParse(mf.Tls.LoadProperty(Name + "_Enabled"), out bool en)) cEnabled = en;
         }
 
         public void Save()
         {
-            mf.Tls.SaveProperty(Name + "_IndicatorNumber", cIndicatorNumber.ToString());
+            if (cEdited)
+            {
+                mf.Tls.SaveProperty(Name + "_Enabled", cEnabled.ToString());
+                cEdited = false;
+            }
         }
     }
 }

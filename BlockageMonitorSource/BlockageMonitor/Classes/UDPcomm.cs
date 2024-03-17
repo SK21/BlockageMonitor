@@ -12,70 +12,53 @@ namespace BlockageMonitor
 {
     public class UDPComm
     {
-        private bool cIsUDPSendConnected;
         private readonly frmStart mf;
         private byte[] buffer = new byte[1024];
-
-        private readonly string cDestinationIP;
-
-        private IPAddress cEthernetEP;
-
-        // local ports must be unique for each app on same pc and each class instance
-        private int cReceivePort;
-
+        private string cConnectionName;
+        private bool cIsUDPSendConnected;
+        private string cLog;
+        private IPAddress cNetworkEP;
+        private int cReceivePort;   // local ports must be unique for each app on same pc and each class instance
         private int cSendFromPort;
         private int cSendToPort;
-        private bool cUpdateDestinationIP;
-        private readonly bool cUseLoopback;
-
-        // wifi endpoint address
-        private IPAddress cWiFiEP;
-
-        private string cWiFiIP;
-
-        // local wifi ip address
+        private string cSubNet;
         private HandleDataDelegateObj HandleDataDelegate = null;
-
-        private int PGN;
         private Socket recvSocket;
         private Socket sendSocket;
 
-        public UDPComm(frmStart CallingForm, int ReceivePort, int SendToPort
-            , int SendFromPort, string DestinationIP = "", bool UseLoopBack = false
-            , bool UpdateDestinationIP = false)
+        public UDPComm(frmStart CallingForm, int ReceivePort, int SendToPort, int SendFromPort, string ConnectionName, string DestinationEndPoint = "")
         {
             mf = CallingForm;
             cReceivePort = ReceivePort;
             cSendToPort = SendToPort;
             cSendFromPort = SendFromPort;
-            cUseLoopback = UseLoopBack;
-            cUpdateDestinationIP = UpdateDestinationIP;
-            cDestinationIP = DestinationIP;
-
-            SetEndPoints();
-
-            NetworkChange.NetworkAddressChanged += new NetworkAddressChangedEventHandler(AddressChanged);
+            cConnectionName = ConnectionName;
+            SetEP(DestinationEndPoint);
         }
 
-        // Status delegate
         private delegate void HandleDataDelegateObj(int port, byte[] msg);
 
-        public string EthernetEP
+        public bool IsUDPSendConnected { get => cIsUDPSendConnected; set => cIsUDPSendConnected = value; }
+
+        public string NetworkEP
         {
-            get { return cEthernetEP.ToString(); }
+            get { return cNetworkEP.ToString(); }
             set
             {
-                IPAddress IP;
                 string[] data;
-
-                if (IPAddress.TryParse(value, out IP))
+                if (IPAddress.TryParse(value, out IPAddress IP))
                 {
                     data = value.Split('.');
-                    cEthernetEP = IPAddress.Parse(data[0] + "." + data[1] + "." + data[2] + ".255");
-                    mf.Tls.SaveProperty("EthernetEP", value);
+                    cNetworkEP = IPAddress.Parse(data[0] + "." + data[1] + "." + data[2] + ".255");
+                    mf.Tls.SaveProperty("EndPoint_" + cConnectionName, value);
+                    cSubNet = data[0].ToString() + "." + data[1].ToString() + "." + data[2].ToString();
                 }
             }
         }
+
+        public string SubNet
+        { get { return cSubNet; } }
+
 
         public void Close()
         {
@@ -83,42 +66,9 @@ namespace BlockageMonitor
             sendSocket.Close();
         }
 
-        public string WifiEP
+        public string Log()
         {
-            get { return cWiFiEP.ToString(); }
-            set
-            {
-                IPAddress IP;
-                string[] data;
-
-                if (IPAddress.TryParse(value, out IP))
-                {
-                    data = value.Split('.');
-                    cWiFiEP = IPAddress.Parse(data[0] + "." + data[1] + "." + data[2] + ".255");
-                    cWiFiIP = value;
-                    mf.Tls.SaveProperty("WifiIP", value);
-                }
-            }
-        }
-
-        public bool IsUDPSendConnected { get => cIsUDPSendConnected; set => cIsUDPSendConnected = value; }
-
-        public string EthernetIP()
-        {
-            string Adr;
-            IPAddress IP;
-            string Result;
-
-            Adr = GetLocalIPv4(NetworkInterfaceType.Ethernet);
-            if (IPAddress.TryParse(Adr, out IP))
-            {
-                Result = IP.ToString();
-            }
-            else
-            {
-                Result = "127.0.0.1";
-            }
-            return Result;
+            return cLog;
         }
 
         //sends byte array
@@ -128,18 +78,14 @@ namespace BlockageMonitor
             {
                 try
                 {
+                    int PGN = byteData[0] | byteData[1] << 8;
+                    AddToLog("               > " + PGN.ToString());
+
                     if (byteData.Length != 0)
                     {
-                        // ethernet
-                        IPEndPoint EndPt = new IPEndPoint(cEthernetEP, cSendToPort);
+                        // network
+                        IPEndPoint EndPt = new IPEndPoint(cNetworkEP, cSendToPort);
                         sendSocket.BeginSendTo(byteData, 0, byteData.Length, SocketFlags.None, EndPt, new AsyncCallback(SendData), null);
-
-                        if (!cUseLoopback)
-                        {
-                            // wifi
-                            EndPt = new IPEndPoint(cWiFiEP, cSendToPort);
-                            sendSocket.BeginSendTo(byteData, 0, byteData.Length, SocketFlags.None, EndPt, new AsyncCallback(SendData), null);
-                        }
                     }
                 }
                 catch (Exception ex)
@@ -176,41 +122,18 @@ namespace BlockageMonitor
             }
             catch (Exception e)
             {
-                //mf.Tls.ShowHelp("UDP start error: \n" + e.Message, "Comm", 3000, true);
-                mf.Tls.WriteErrorLog("StartUDPServer: \n" + e.Message);
+                mf.Tls.WriteErrorLog("UDPcomm/StartUDPServer: \n" + e.Message);
             }
         }
 
-        public string WifiIP()
+        private void AddToLog(string NewData)
         {
-            return cWiFiIP;
-        }
-
-        private void AddressChanged(object sender, EventArgs e)
-        {
-            if (cUpdateDestinationIP) SetEndPoints();
-            mf.Tls.WriteActivityLog("UDPcomm: Network Address Changed");
-        }
-
-        private string GetLocalIPv4(NetworkInterfaceType _type)
-        {
-            // https://stackoverflow.com/questions/6803073/get-local-ip-address
-
-            string output = "";
-            foreach (NetworkInterface item in NetworkInterface.GetAllNetworkInterfaces())
+            cLog += DateTime.Now.Second.ToString() + "  " + NewData + Environment.NewLine;
+            if (cLog.Length > 100000)
             {
-                if (item.NetworkInterfaceType == _type && item.OperationalStatus == OperationalStatus.Up)
-                {
-                    foreach (UnicastIPAddressInformation ip in item.GetIPProperties().UnicastAddresses)
-                    {
-                        if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
-                        {
-                            output = ip.Address.ToString();
-                        }
-                    }
-                }
+                cLog = cLog.Substring(cLog.Length - 98000, 98000);
             }
-            return output;
+            cLog = cLog.Replace("\0", string.Empty);
         }
 
         private void HandleData(int Port, byte[] Data)
@@ -219,12 +142,16 @@ namespace BlockageMonitor
             {
                 if (Data.Length > 1)
                 {
-                    PGN = Data[0] << 8 | Data[1];   // AGIO big endian
-                    if (PGN == 32897)
+                    int PGN = Data[1] << 8 | Data[0];   // rc modules little endian
+                    AddToLog("< " + PGN.ToString());
+
+                    switch (PGN)
                     {
-                        if (Data.Length > 2)
-                        {
-                            // AGIO
+                        case 32100:
+                            mf.Sensors.ParseByteData(Data);
+                            break;
+
+                        case 33152: // AOG, 0x81, 0x80
                             switch (Data[3])
                             {
                                 case 254:
@@ -232,17 +159,7 @@ namespace BlockageMonitor
                                     mf.AutoSteerPGN.ParseByteData(Data);
                                     break;
                             }
-                        }
-                    }
-                    else
-                    {
-                        PGN = Data[1] << 8 | Data[0];   // rc modules little endian
-                        switch (PGN)
-                        {
-                            case 32100:
-                                mf.Sensors.ParseByteData(Data);
-                                break;
-                        }
+                            break;
                     }
                 }
             }
@@ -295,36 +212,30 @@ namespace BlockageMonitor
             }
         }
 
-        private void SetEndPoints()
+        private void SetEP(string DestinationEndPoint)
         {
-            string Adr;
-            IPAddress IP;
-            string[] data;
-
             try
             {
-                // ethernet
-                cEthernetEP = IPAddress.Parse("192.168.1.255");
-                if (IPAddress.TryParse(cDestinationIP, out IP))
+                if (IPAddress.TryParse(DestinationEndPoint, out _))
                 {
-                    // keep pre-defined address
-                    cEthernetEP = IP;
+                    NetworkEP = DestinationEndPoint;
                 }
-
-                // wifi
-                cWiFiIP = "127.0.0.1";
-                cWiFiEP = IPAddress.Parse(cWiFiIP);
-                Adr = GetLocalIPv4(NetworkInterfaceType.Wireless80211);
-                if (IPAddress.TryParse(Adr, out IP))
+                else
                 {
-                    data = Adr.Split('.');
-                    cWiFiEP = IPAddress.Parse(data[0] + "." + data[1] + "." + data[2] + ".255");
-                    cWiFiIP = Adr;
+                    string EP = mf.Tls.LoadProperty("EndPoint_" + cConnectionName);
+                    if (IPAddress.TryParse(EP, out _))
+                    {
+                        NetworkEP = EP;
+                    }
+                    else
+                    {
+                        NetworkEP = "192.168.1.255";
+                    }
                 }
             }
             catch (Exception ex)
             {
-                mf.Tls.WriteErrorLog("UDPcomm/SetEndPoints " + ex.Message);
+                mf.Tls.WriteErrorLog("UDPcomm/SetEP " + ex.Message);
             }
         }
     }
