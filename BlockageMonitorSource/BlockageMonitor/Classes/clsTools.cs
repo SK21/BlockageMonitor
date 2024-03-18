@@ -16,53 +16,19 @@ namespace BlockageMonitor
 {
     public class clsTools
     {
-        private static Hashtable ht;
         private string cAppName = "BlockageMonitor";
         private string cAppVersion = "1.0.0";
         private string cPropertiesFile;
         private string cSettingsDir;
-        private string cVersionDate = "26-Feb-2023";
+        private string cVersionDate = "17-Mar-2023";
         private frmStart mf;
         private Form[] OpenForms = new Form[30];    // make sure to allocate enough
+        private SortedDictionary<string, string> Props = new SortedDictionary<string, string>();
 
         public clsTools(frmStart CallingForm)
         {
             mf = CallingForm;
             CheckFolders();
-        }
-        private void FormAdd(Form frm)
-        {
-            bool Found = false;
-            for (int i = 0; i < OpenForms.Length; i++)
-            {
-                if (OpenForms[i] != null && OpenForms[i].Name == frm.Name)
-                {
-                    Found = true;
-                    break;
-                }
-            }
-            if (!Found)
-            {
-                for (int i = 0; i < OpenForms.Length; i++)
-                {
-                    if (OpenForms[i] == null)
-                    {
-                        OpenForms[i] = frm;
-                        break;
-                    }
-                }
-            }
-        }
-        private void FormRemove(Form frm)
-        {
-            for (int i = 0; i < OpenForms.Length; i++)
-            {
-                if (OpenForms[i] != null && OpenForms[i].Name == frm.Name)
-                {
-                    OpenForms[i] = null;
-                    break;
-                }
-            }
         }
 
         public string PropertiesFile
@@ -208,6 +174,20 @@ namespace BlockageMonitor
             return Result;
         }
 
+        public Form IsFormOpen(string Name)
+        {
+            Form Result = null;
+            for (int i = 0; i < OpenForms.Length; i++)
+            {
+                if (OpenForms[i] != null && OpenForms[i].Name == Name)
+                {
+                    Result = OpenForms[i];
+                    break;
+                }
+            }
+            return Result;
+        }
+
         public bool IsOnScreen(Form form, bool PutOnScreen = false)
         {
             // Create rectangle
@@ -243,7 +223,7 @@ namespace BlockageMonitor
         public string LoadProperty(string Key)
         {
             string Prop = "";
-            if (ht.Contains(Key)) Prop = ht[Key].ToString();
+            if (Props.ContainsKey(Key)) Prop = Props[Key].ToString();
             return Prop;
         }
 
@@ -327,19 +307,6 @@ namespace BlockageMonitor
                 WriteErrorLog("clsTools: SaveFile: " + ex.Message);
             }
         }
-        public Form IsFormOpen(string Name)
-        {
-            Form Result = null;
-            for (int i = 0; i < OpenForms.Length; i++)
-            {
-                if (OpenForms[i] != null && OpenForms[i].Name == Name)
-                {
-                    Result = OpenForms[i];
-                    break;
-                }
-            }
-            return Result;
-        }
 
         public void SaveFormData(Form Frm)
         {
@@ -354,17 +321,17 @@ namespace BlockageMonitor
         public void SaveProperty(string Key, string Value)
         {
             bool Changed = false;
-            if (ht.Contains(Key))
+            if (Props.ContainsKey(Key))
             {
-                if (!ht[Key].ToString().Equals(Value))
+                if (!Props[Key].ToString().Equals(Value))
                 {
-                    ht[Key] = Value;
+                    Props[Key] = Value;
                     Changed = true;
                 }
             }
             else
             {
-                ht.Add(Key, Value);
+                Props.Add(Key, Value);
                 Changed = true;
             }
             if (Changed) SaveProperties();
@@ -543,19 +510,55 @@ namespace BlockageMonitor
             }
         }
 
+        private void FormAdd(Form frm)
+        {
+            bool Found = false;
+            for (int i = 0; i < OpenForms.Length; i++)
+            {
+                if (OpenForms[i] != null && OpenForms[i].Name == frm.Name)
+                {
+                    Found = true;
+                    break;
+                }
+            }
+            if (!Found)
+            {
+                for (int i = 0; i < OpenForms.Length; i++)
+                {
+                    if (OpenForms[i] == null)
+                    {
+                        OpenForms[i] = frm;
+                        break;
+                    }
+                }
+            }
+        }
+
+        private void FormRemove(Form frm)
+        {
+            for (int i = 0; i < OpenForms.Length; i++)
+            {
+                if (OpenForms[i] != null && OpenForms[i].Name == frm.Name)
+                {
+                    OpenForms[i] = null;
+                    break;
+                }
+            }
+        }
+
         private void LoadProperties(string path)
         {
             // property:  key=value  ex: "LastFile=Main.mdb"
             try
             {
-                ht = new Hashtable();
+                Props.Clear();
                 string[] lines = System.IO.File.ReadAllLines(path);
                 foreach (string line in lines)
                 {
                     if (line.Contains("=") && !String.IsNullOrEmpty(line.Split('=')[0]) && !String.IsNullOrEmpty(line.Split('=')[1]))
                     {
                         string[] splitText = line.Split('=');
-                        ht.Add(splitText[0], splitText[1]);
+                        Props.Add(splitText[0], splitText[1]);
                     }
                 }
             }
@@ -587,9 +590,9 @@ namespace BlockageMonitor
         {
             try
             {
-                string[] NewLines = new string[ht.Count];
+                string[] NewLines = new string[Props.Count];
                 int i = -1;
-                foreach (DictionaryEntry Pair in ht)
+                foreach (var Pair in Props)
                 {
                     i++;
                     NewLines[i] = Pair.Key.ToString() + "=" + Pair.Value.ToString();

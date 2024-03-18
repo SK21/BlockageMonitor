@@ -6,8 +6,8 @@ namespace BlockageMonitor
 {
     public partial class frmStart : Form
     {
-        public readonly int MaxRows = 100;
         public readonly int MaxModules = 16;
+        public readonly int MaxRows = 100;
         public readonly int MaxRowsPerModule = 16;
         public PGN254 AutoSteerPGN;
         public clsModules BlockageModules;
@@ -18,16 +18,21 @@ namespace BlockageMonitor
         public UDPComm UDPaog;
         public UDPComm UDPsensors;
 
+        private int ButtonRight;
         private int cBlockSeconds = 10;
         private bool cMonitoringOn;
         private int cRowCount = 10;
+        private int cRowsPerModule = 16;
         private int LastRowCount;
         private bool PlayAlarm;
-        private int cRowsPerModule = 16;
+
         public frmStart()
         {
             InitializeComponent();
             Tls = new clsTools(this);
+
+            ButtonRight = this.Width - btnSettings.Left;
+
             LoadData();
             UDPsensors = new UDPComm(this, 25600, 25700, 2388, "Sensors");
             UDPaog = new UDPComm(this, 17777, 15555, 1460, "AOG");
@@ -48,18 +53,6 @@ namespace BlockageMonitor
                 Tls.SaveProperty("BlockSeconds", cBlockSeconds.ToString());
             }
         }
-        public int RowsPerModule
-        {
-            get { return cRowsPerModule; }
-            set
-            {
-                if(value>0 && value<=MaxRowsPerModule)
-                {
-                    cRowsPerModule = value;
-                    Tls.SaveProperty("RowsPerModule",cRowsPerModule.ToString());
-                }
-            }
-        }
 
         public int RowCount
         {
@@ -68,6 +61,19 @@ namespace BlockageMonitor
             {
                 cRowCount = value;
                 Tls.SaveProperty("SeedRowCount", cRowCount.ToString());
+            }
+        }
+
+        public int RowsPerModule
+        {
+            get { return cRowsPerModule; }
+            set
+            {
+                if (value > 0 && value <= MaxRowsPerModule)
+                {
+                    cRowsPerModule = value;
+                    Tls.SaveProperty("RowsPerModule", cRowsPerModule.ToString());
+                }
             }
         }
 
@@ -105,6 +111,8 @@ namespace BlockageMonitor
         private void frmStart_FormClosed(object sender, FormClosedEventArgs e)
         {
             if (this.WindowState == FormWindowState.Normal) Tls.SaveFormData(this);
+            Tls.SaveProperty("StartWidth", this.Width.ToString());
+            Tls.SaveProperty("StartHeight", this.Height.ToString());
             UDPaog.Close();
             UDPsensors.Close();
         }
@@ -114,31 +122,52 @@ namespace BlockageMonitor
             try
             {
                 Tls.LoadFormData(this);
-            if (Tls.PrevInstance())
-            {
-                Tls.ShowHelp(Lang.lgAlreadyRunning, "Help", 3000);
-                this.Close();
-            }
-            // UDP
-            UDPsensors.StartUDPServer();
-            if (!UDPsensors.IsUDPSendConnected)
-            {
-                Tls.ShowHelp("UDPsensors failed to start.", "", 3000, true, true);
-            }
+                if (Tls.PrevInstance())
+                {
+                    Tls.ShowHelp(Lang.lgAlreadyRunning, "Help", 3000);
+                    this.Close();
+                }
+                // UDP
+                UDPsensors.StartUDPServer();
+                if (!UDPsensors.IsUDPSendConnected)
+                {
+                    Tls.ShowHelp("UDPsensors failed to start.", "", 3000, true, true);
+                }
 
-            UDPaog.StartUDPServer();
-            if (!UDPaog.IsUDPSendConnected)
-            {
-                Tls.ShowHelp("UDPagio failed to start.", "", 3000, true, true);
-            }
+                UDPaog.StartUDPServer();
+                if (!UDPaog.IsUDPSendConnected)
+                {
+                    Tls.ShowHelp("UDPagio failed to start.", "", 3000, true, true);
+                }
 
-            LoadChart();
-            UpdateForm();
+                LoadChart();
+
+                cMonitoringOn = true;
+                timer1.Enabled = cMonitoringOn;
+                SensorAlarm.PlayAlarm(PlayAlarm);
+
+                UpdateForm();
             }
             catch (Exception ex)
             {
                 Tls.ShowHelp("Failed to load properly: " + ex.Message, "Help", 30000, true);
                 Close();
+            }
+        }
+
+        private void frmStart_Resize(object sender, EventArgs e)
+        {
+            try
+            {
+                btnSettings.Left = this.Width - ButtonRight;
+                btnAlarm.Left = this.Width - ButtonRight;
+                btnPower.Left = this.Width - ButtonRight;
+
+                chart1.Width = (int)(btnSettings.Left - 18);
+                chart1.Height = this.Height - 61;
+            }
+            catch (Exception)
+            {
             }
         }
 
@@ -162,7 +191,25 @@ namespace BlockageMonitor
         {
             if (int.TryParse(Tls.LoadProperty("SeedRowCount"), out int rc)) cRowCount = rc;
             if (int.TryParse(Tls.LoadProperty("BlockSeconds"), out int bs)) cBlockSeconds = bs;
-            if(int.TryParse(Tls.LoadProperty("RowsPerModule"),out int rws))cRowsPerModule= rws;
+            if (int.TryParse(Tls.LoadProperty("RowsPerModule"), out int rws)) cRowsPerModule = rws;
+
+            if (int.TryParse(Tls.LoadProperty("StartWidth"), out int wd))
+            {
+                if (wd > 100 && wd < 1500) this.Width = wd;
+            }
+            else
+            {
+                this.Width = 897;
+            }
+
+            if (int.TryParse(Tls.LoadProperty("StartHeight"), out int ht))
+            {
+                if (ht > 100 && ht < 1000) this.Height = ht;
+            }
+            else
+            {
+                this.Height = 261;
+            }
         }
 
         private void networkToolStripMenuItem_Click(object sender, EventArgs e)

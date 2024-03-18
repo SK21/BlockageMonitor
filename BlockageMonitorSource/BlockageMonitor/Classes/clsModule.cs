@@ -71,7 +71,8 @@ namespace BlockageMonitor
 
         public bool IsValid()
         {
-            bool Result = (cStartRow > 0 && cStartRow <= mf.SeedRows.Count && cEndRow >= cStartRow && cEndRow <= mf.SeedRows.Count);
+            bool Result = (cStartRow > 0 && cStartRow <= mf.SeedRows.Count && 
+                cEndRow >= cStartRow && cEndRow <= mf.SeedRows.Count) ||(cStartRow==0 && cEndRow==0);
             return Result;
         }
 

@@ -38,7 +38,7 @@ namespace BlockageMonitor
                 int Result = 0;
                 foreach (clsModule Md in mf.BlockageModules.Items)
                 {
-                    if (ID >= Md.StartRow && ID <= Md.EndRow)
+                    if ((ID+1) >= Md.StartRow && (ID+1) <= Md.EndRow)
                     {
                         Result = Md.ID;
                         break;

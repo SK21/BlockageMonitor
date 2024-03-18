@@ -56,7 +56,7 @@
             this.btnSendSubnet = new System.Windows.Forms.Button();
             this.btnRescan = new System.Windows.Forms.Button();
             this.tbRows = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
+            this.lbRows = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage3.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -67,8 +67,8 @@
             // 
             // tabControl1
             // 
-            this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Controls.Add(this.tabPage1);
+            this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Location = new System.Drawing.Point(15, 15);
             this.tabControl1.Margin = new System.Windows.Forms.Padding(6);
             this.tabControl1.Name = "tabControl1";
@@ -240,7 +240,6 @@
             // 
             this.btnRenumber.BackColor = System.Drawing.Color.Transparent;
             this.btnRenumber.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnRenumber.Enabled = false;
             this.btnRenumber.FlatAppearance.BorderSize = 0;
             this.btnRenumber.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnRenumber.Font = new System.Drawing.Font("Tahoma", 14.25F);
@@ -332,14 +331,14 @@
             this.tbRows.Enter += new System.EventHandler(this.tbRows_Enter);
             this.tbRows.Validating += new System.ComponentModel.CancelEventHandler(this.tbRows_Validating);
             // 
-            // label1
+            // lbRows
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(15, 496);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(159, 24);
-            this.label1.TabIndex = 154;
-            this.label1.Text = "Rows per Module";
+            this.lbRows.AutoSize = true;
+            this.lbRows.Location = new System.Drawing.Point(15, 496);
+            this.lbRows.Name = "lbRows";
+            this.lbRows.Size = new System.Drawing.Size(159, 24);
+            this.lbRows.TabIndex = 154;
+            this.lbRows.Text = "Rows per Module";
             // 
             // frmModuleConfig
             // 
@@ -347,7 +346,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(522, 551);
             this.Controls.Add(this.tbRows);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.lbRows);
             this.Controls.Add(this.btnRenumber);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnClose);
@@ -402,6 +401,6 @@
         private System.Windows.Forms.DataGridViewCheckBoxColumn enabledDataGridViewTextBoxColumn;
         private System.Windows.Forms.Button btnRenumber;
         private System.Windows.Forms.TextBox tbRows;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lbRows;
     }
 }

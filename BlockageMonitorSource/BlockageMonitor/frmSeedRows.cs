@@ -14,8 +14,16 @@ namespace BlockageMonitor
 
         public frmSeedRows(frmStart CF)
         {
+            Initializing = true;
             InitializeComponent();
             mf = CF;
+        }
+
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            mf.SeedRows.Load(mf.RowCount);
+            UpdateForm();
+            SetButtons(false);
         }
 
         private void btnClose_Click(object sender, EventArgs e)
@@ -30,6 +38,11 @@ namespace BlockageMonitor
                 SetButtons(false);
                 UpdateForm();
             }
+        }
+
+        private void DGV_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            if (!Initializing) SetButtons(true);
         }
 
         private void frmSensors_FormClosed(object sender, FormClosedEventArgs e)
@@ -58,17 +71,22 @@ namespace BlockageMonitor
         {
             try
             {
-                for (int i = 0; i < DGV.Rows.Count; i++)
-                {
-                    // enabled
-                    string val = DGV.Rows[i].Cells[2].EditedFormattedValue.ToString();
-                    if (val == "") val = "0";
-                    if (bool.TryParse(val, out bool en)) mf.SeedRows.Items[i].Enabled = en;
-                }
-                mf.SeedRows.Save();
+                if (int.TryParse(tbSeconds.Text, out int sec)) mf.BlockSeconds = sec;
 
                 if (int.TryParse(tbRows.Text, out int rs)) mf.RowCount = rs;
-                if (int.TryParse(tbSeconds.Text, out int sec)) mf.BlockSeconds = sec;
+                if (mf.RowCount != mf.SeedRows.Count) mf.SeedRows.Load(rs);
+
+                for (int i = 0; i < DGV.Rows.Count; i++)
+                {
+                    if (i < mf.RowCount)
+                    {
+                        // enabled
+                        string val = DGV.Rows[i].Cells[2].EditedFormattedValue.ToString();
+                        if (val == "") val = "0";
+                        if (bool.TryParse(val, out bool en)) mf.SeedRows.Items[i].Enabled = en;
+                    }
+                }
+                mf.SeedRows.Save();
             }
             catch (Exception ex)
             {
@@ -177,8 +195,8 @@ namespace BlockageMonitor
                 foreach (clsSeedRow Rw in mf.SeedRows.Items)
                 {
                     DataRow DR = dataSet1.Tables[0].NewRow();
-                    DR[0] = Rw.ID;
-                    DR[1] = Rw.ModuleID;
+                    DR[0] = Rw.ID + 1;
+                    DR[1] = Rw.ModuleID + 1;
                     DR[2] = Rw.Enabled;
 
                     dataSet1.Tables[0].Rows.Add(DR);
@@ -190,6 +208,19 @@ namespace BlockageMonitor
             {
                 mf.Tls.WriteErrorLog("frmSeedRows/UpdateForm" + ex.Message);
             }
+        }
+
+        private void DGV_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.ColumnIndex == 0 || e.ColumnIndex == 1)
+            {
+                e.CellStyle.BackColor = this.BackColor;
+            }
+        }
+
+        private void btnRescan_Click(object sender, EventArgs e)
+        {
+            UpdateForm();
         }
     }
 }

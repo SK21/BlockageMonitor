@@ -237,7 +237,6 @@
             this.Controls.Add(this.btnPower);
             this.Controls.Add(this.btnSettings);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.HelpButton = true;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(6);
@@ -247,6 +246,7 @@
             this.Text = "Blockage Monitor";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmStart_FormClosed);
             this.Load += new System.EventHandler(this.frmStart_Load);
+            this.Resize += new System.EventHandler(this.frmStart_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.dataSet1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataTable1)).EndInit();
             this.mnuSettings.ResumeLayout(false);

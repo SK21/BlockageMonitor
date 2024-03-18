@@ -16,6 +16,7 @@ namespace BlockageMonitor
 
         public frmModuleConfig(frmStart cf)
         {
+            Initializing = true;
             InitializeComponent();
             mf = cf;
         }
@@ -131,28 +132,10 @@ namespace BlockageMonitor
             {
                 for (int i = 0; i < DGV.Rows.Count; i++)
                 {
-                    for (int j = 1; j < 4; j++)
-                    {
-                        string val = DGV.Rows[i].Cells[j].EditedFormattedValue.ToString();
-                        if (val == "") val = "0";
-                        switch (j)
-                        {
-                            case 1:
-                                // start row
-                                if (int.TryParse(val, out int sr)) mf.BlockageModules.Items[i].StartRow = sr;
-                                break;
-
-                            case 2:
-                                // end row
-                                if (int.TryParse(val, out int er)) mf.BlockageModules.Items[i].EndRow = er;
-                                break;
-
-                            case 3:
-                                // enabled
-                                if (bool.TryParse(val, out bool en)) mf.BlockageModules.Items[i].Enabled = en;
-                                break;
-                        }
-                    }
+                    string val = DGV.Rows[i].Cells[3].EditedFormattedValue.ToString();
+                    if (val == "") val = "0";
+                    // enabled
+                    if (bool.TryParse(val, out bool en)) mf.BlockageModules.Items[i].Enabled = en;
                 }
                 mf.BlockageModules.Save();
 
@@ -270,16 +253,6 @@ namespace BlockageMonitor
                             }
                         }
                         break;
-
-                    case 3:
-                        // enabled
-                        if (bool.TryParse(val, out bool en))
-                        {
-                            string zz = DGV.Rows[e.RowIndex].Cells[0].EditedFormattedValue.ToString();
-                            int.TryParse(zz, out int ID);
-                            mf.BlockageModules.Items[ID-1].Enabled = en;
-                        }
-                        break;
                 }
             }
             catch (Exception ex)
@@ -297,7 +270,9 @@ namespace BlockageMonitor
 
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            btnRenumber.Enabled = tabControl1.SelectedIndex == 1;
+            btnRenumber.Visible = (tabControl1.SelectedIndex == 0);
+            tbRows.Visible = (tabControl1.SelectedIndex == 0);
+            lbRows.Visible = (tabControl1.SelectedIndex == 0);
         }
 
         private void tbRows_Enter(object sender, EventArgs e)
