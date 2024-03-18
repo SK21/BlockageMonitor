@@ -55,6 +55,8 @@
             this.btnAlarm = new System.Windows.Forms.Button();
             this.btnPower = new System.Windows.Forms.Button();
             this.btnSettings = new System.Windows.Forms.Button();
+            this.transparentToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.dataSet1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataTable1)).BeginInit();
             this.mnuSettings.SuspendLayout();
@@ -142,15 +144,17 @@
             this.mnuSettings.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.mnuSettings.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.sensorsToolStripMenuItem,
-            this.networkToolStripMenuItem});
+            this.networkToolStripMenuItem,
+            this.transparentToolStripMenuItem,
+            this.exitToolStripMenuItem});
             this.mnuSettings.Name = "mnuSettings";
-            this.mnuSettings.Size = new System.Drawing.Size(178, 60);
+            this.mnuSettings.Size = new System.Drawing.Size(182, 116);
             // 
             // sensorsToolStripMenuItem
             // 
             this.sensorsToolStripMenuItem.Image = global::BlockageMonitor.Properties.Resources.Sec1;
             this.sensorsToolStripMenuItem.Name = "sensorsToolStripMenuItem";
-            this.sensorsToolStripMenuItem.Size = new System.Drawing.Size(177, 28);
+            this.sensorsToolStripMenuItem.Size = new System.Drawing.Size(181, 28);
             this.sensorsToolStripMenuItem.Text = "Seed Rows";
             this.sensorsToolStripMenuItem.Click += new System.EventHandler(this.sensorsToolStripMenuItem_Click);
             // 
@@ -158,7 +162,7 @@
             // 
             this.networkToolStripMenuItem.Image = global::BlockageMonitor.Properties.Resources.SubnetSend;
             this.networkToolStripMenuItem.Name = "networkToolStripMenuItem";
-            this.networkToolStripMenuItem.Size = new System.Drawing.Size(177, 28);
+            this.networkToolStripMenuItem.Size = new System.Drawing.Size(181, 28);
             this.networkToolStripMenuItem.Text = "Modules";
             this.networkToolStripMenuItem.Click += new System.EventHandler(this.networkToolStripMenuItem_Click);
             // 
@@ -227,6 +231,21 @@
             this.btnSettings.UseVisualStyleBackColor = false;
             this.btnSettings.Click += new System.EventHandler(this.btnSettings_Click);
             // 
+            // transparentToolStripMenuItem
+            // 
+            this.transparentToolStripMenuItem.Name = "transparentToolStripMenuItem";
+            this.transparentToolStripMenuItem.Size = new System.Drawing.Size(181, 28);
+            this.transparentToolStripMenuItem.Text = "Transparent";
+            this.transparentToolStripMenuItem.Click += new System.EventHandler(this.transparentToolStripMenuItem_Click);
+            // 
+            // exitToolStripMenuItem
+            // 
+            this.exitToolStripMenuItem.Image = global::BlockageMonitor.Properties.Resources.FanOff;
+            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(181, 28);
+            this.exitToolStripMenuItem.Text = "Exit";
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            // 
             // frmStart
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 24F);
@@ -279,6 +298,8 @@
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem networkToolStripMenuItem;
         private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
+        private System.Windows.Forms.ToolStripMenuItem transparentToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
     }
 }
 

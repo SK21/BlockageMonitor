@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace BlockageMonitor
 {
@@ -23,8 +24,12 @@ namespace BlockageMonitor
         private bool cMonitoringOn;
         private int cRowCount = 10;
         private int cRowsPerModule = 16;
+        private bool cUseTransparent = false;
+        private bool IsTransparent;
         private int LastRowCount;
         private bool PlayAlarm;
+        private int TransLeftOffset = 6;
+        private int TransTopOffset = 30;
 
         public frmStart()
         {
@@ -42,6 +47,8 @@ namespace BlockageMonitor
             AutoSteerPGN = new PGN254(this);
             BlockageModules = new clsModules(this, 16);
             SensorAlarm = new clsAlarm(this);
+            this.BackColor = Properties.Settings.Default.DayColour;
+            chart1.BackColor= Properties.Settings.Default.DayColour;
         }
 
         public int BlockSeconds
@@ -74,6 +81,16 @@ namespace BlockageMonitor
                     cRowsPerModule = value;
                     Tls.SaveProperty("RowsPerModule", cRowsPerModule.ToString());
                 }
+            }
+        }
+
+        public bool UseTransparent
+        {
+            get { return cUseTransparent; }
+            set
+            {
+                cUseTransparent = value;
+                Tls.SaveProperty("UseTransparent", cUseTransparent.ToString());
             }
         }
 
@@ -110,6 +127,13 @@ namespace BlockageMonitor
 
         private void frmStart_FormClosed(object sender, FormClosedEventArgs e)
         {
+            if (cUseTransparent)
+            {
+                // move the window back to the default location
+                this.Top += -TransTopOffset;
+                this.Left += -TransLeftOffset;
+            }
+
             if (this.WindowState == FormWindowState.Normal) Tls.SaveFormData(this);
             Tls.SaveProperty("StartWidth", this.Width.ToString());
             Tls.SaveProperty("StartHeight", this.Height.ToString());
@@ -210,6 +234,9 @@ namespace BlockageMonitor
             {
                 this.Height = 261;
             }
+
+            if (bool.TryParse(Tls.LoadProperty("UseTransparent"), out bool tp)) cUseTransparent = tp;
+            IsTransparent = !tp;    // to cause update
         }
 
         private void networkToolStripMenuItem_Click(object sender, EventArgs e)
@@ -240,10 +267,57 @@ namespace BlockageMonitor
             frm.Show();
         }
 
+        private void SetTransparent()
+        {
+            if (cUseTransparent)
+            {
+                this.TransparencyKey = Properties.Settings.Default.DayColour;
+                this.ControlBox = false;
+                this.FormBorderStyle = FormBorderStyle.None;
+                this.Top += TransTopOffset;
+                this.Left += TransLeftOffset;
+                IsTransparent = true;
+
+                chart1.ChartAreas[0].AxisX.LabelStyle.ForeColor = Color.White;
+                chart1.ChartAreas[0].AxisY.LabelStyle.ForeColor = Color.White;
+
+                chart1.BackColor = Properties.Settings.Default.DayColour;
+                chart1.ChartAreas[0].BackColor = Properties.Settings.Default.DayColour;
+                chart1.ChartAreas[0].AxisX.MajorGrid.LineColor = chart1.ChartAreas[0].BackColor;
+                chart1.ChartAreas[0].AxisY.MajorGrid.LineColor = chart1.ChartAreas[0].BackColor;
+
+                chart1.TextAntiAliasingQuality = TextAntiAliasingQuality.SystemDefault;
+            }
+            else
+            {
+                this.Text = "Blockage Monitor";
+                this.TransparencyKey = Color.Empty;
+                this.ControlBox = true;
+                this.FormBorderStyle = FormBorderStyle.FixedDialog;
+                this.Top += -TransTopOffset;
+                this.Left += -TransLeftOffset;
+                IsTransparent = false;
+
+                chart1.ChartAreas[0].AxisX.LabelStyle.ForeColor = Color.Black;
+                chart1.ChartAreas[0].AxisY.LabelStyle.ForeColor = Color.Black;
+
+                chart1.BackColor = Color.White;
+                chart1.ChartAreas[0].BackColor = Color.White;
+                chart1.ChartAreas[0].AxisX.MajorGrid.LineColor = chart1.ChartAreas[0].BackColor;
+                chart1.ChartAreas[0].AxisY.MajorGrid.LineColor = chart1.ChartAreas[0].BackColor;
+            }
+        }
+
         private void timer1_Tick(object sender, EventArgs e)
         {
             UpdateForm();
             SensorAlarm.CheckAlarms();
+        }
+
+        private void transparentToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            cUseTransparent = !cUseTransparent;
+            UpdateForm();
         }
 
         private void UpdateForm()
@@ -275,6 +349,24 @@ namespace BlockageMonitor
             {
                 btnPower.Image = Properties.Resources.FanOff;
             }
+
+            if (cUseTransparent != IsTransparent)
+            {
+                SetTransparent();
+                if (IsTransparent)
+                {
+                    transparentToolStripMenuItem.Image = Properties.Resources.OK;
+                }
+                else
+                {
+                    transparentToolStripMenuItem.Image = Properties.Resources.Cancel64;
+                }
+            }
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }
