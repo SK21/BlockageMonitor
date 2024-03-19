@@ -13,8 +13,8 @@ namespace BlockageMonitor
         //0 HeaderLo                0x64, 100
         //1 HeaderHi                0x7D, 125
         //2 Module ID/row
-        //      bits 0-3, module ID
-        //      bits 4-7, row ID
+        //      bits 0-3, module ID, 0-15
+        //      bits 4-7, row ID, 0-15
         //3 rate
         //4 CRC
 

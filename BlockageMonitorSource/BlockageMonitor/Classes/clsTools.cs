@@ -20,7 +20,7 @@ namespace BlockageMonitor
         private string cAppVersion = "1.0.0";
         private string cPropertiesFile;
         private string cSettingsDir;
-        private string cVersionDate = "17-Mar-2023";
+        private string cVersionDate = "19-Mar-2023";
         private frmStart mf;
         private Form[] OpenForms = new Form[30];    // make sure to allocate enough
         private SortedDictionary<string, string> Props = new SortedDictionary<string, string>();
