@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 
@@ -30,6 +31,10 @@ namespace BlockageMonitor
         private bool PlayAlarm;
         private int TransLeftOffset = 6;
         private int TransTopOffset = 30;
+        private int windowLeft = 0;
+        private int windowTop = 0;
+        private int mouseX = 0;
+        private int mouseY = 0;
 
         public frmStart()
         {
@@ -48,7 +53,7 @@ namespace BlockageMonitor
             BlockageModules = new clsModules(this, 16);
             SensorAlarm = new clsAlarm(this);
             this.BackColor = Properties.Settings.Default.DayColour;
-            chart1.BackColor= Properties.Settings.Default.DayColour;
+            chart1.BackColor = Properties.Settings.Default.DayColour;
         }
 
         public int BlockSeconds
@@ -101,21 +106,6 @@ namespace BlockageMonitor
             SensorAlarm.CheckAlarms();
         }
 
-        private void btnPower_Click(object sender, EventArgs e)
-        {
-            cMonitoringOn = !cMonitoringOn;
-            timer1.Enabled = cMonitoringOn;
-            if (cMonitoringOn)
-            {
-                SensorAlarm.PlayAlarm(PlayAlarm);
-            }
-            else
-            {
-                SensorAlarm.PlayAlarm(false);
-            }
-            UpdateForm();
-        }
-
         private void btnSettings_Click(object sender, EventArgs e)
         {
             Button btnSender = (Button)sender;
@@ -123,6 +113,11 @@ namespace BlockageMonitor
             ptLowerLeft = btnSender.PointToScreen(ptLowerLeft);
             mnuSettings.Show(ptLowerLeft);
             UpdateForm();
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
 
         private void frmStart_FormClosed(object sender, FormClosedEventArgs e)
@@ -133,10 +128,13 @@ namespace BlockageMonitor
                 this.Top += -TransTopOffset;
                 this.Left += -TransLeftOffset;
             }
+            else
+            {
+                Tls.SaveProperty("StartWidth", this.Width.ToString());
+                Tls.SaveProperty("StartHeight", this.Height.ToString());
+            }
 
             if (this.WindowState == FormWindowState.Normal) Tls.SaveFormData(this);
-            Tls.SaveProperty("StartWidth", this.Width.ToString());
-            Tls.SaveProperty("StartHeight", this.Height.ToString());
             UDPaog.Close();
             UDPsensors.Close();
         }
@@ -185,7 +183,6 @@ namespace BlockageMonitor
             {
                 btnSettings.Left = this.Width - ButtonRight;
                 btnAlarm.Left = this.Width - ButtonRight;
-                btnPower.Left = this.Width - ButtonRight;
 
                 chart1.Width = (int)(btnSettings.Left - 18);
                 chart1.Height = this.Height - 61;
@@ -293,7 +290,7 @@ namespace BlockageMonitor
                 this.Text = "Blockage Monitor";
                 this.TransparencyKey = Color.Empty;
                 this.ControlBox = true;
-                this.FormBorderStyle = FormBorderStyle.FixedDialog;
+                this.FormBorderStyle = FormBorderStyle.Sizable;
                 this.Top += -TransTopOffset;
                 this.Left += -TransLeftOffset;
                 IsTransparent = false;
@@ -316,8 +313,34 @@ namespace BlockageMonitor
 
         private void transparentToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            cUseTransparent = !cUseTransparent;
+            UseTransparent = !cUseTransparent;
             UpdateForm();
+        }
+        private void mouseMove_MouseDown(object sender, MouseEventArgs e)
+        {
+            // Log the current window location and the mouse location.
+            if (e.Button == MouseButtons.Right)
+            {
+                windowTop = this.Top;
+                windowLeft = this.Left;
+                mouseX = e.X;
+                mouseY = e.Y;
+            }
+        }
+
+        private void mouseMove_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                windowTop = this.Top;
+                windowLeft = this.Left;
+
+                Point pos = new Point(0, 0);
+
+                pos.X = windowLeft + e.X - mouseX;
+                pos.Y = windowTop + e.Y - mouseY;
+                this.Location = pos;
+            }
         }
 
         private void UpdateForm()
@@ -341,15 +364,6 @@ namespace BlockageMonitor
                 btnAlarm.Text = "X";
             }
 
-            if (cMonitoringOn)
-            {
-                btnPower.Image = Properties.Resources.FanOn;
-            }
-            else
-            {
-                btnPower.Image = Properties.Resources.FanOff;
-            }
-
             if (cUseTransparent != IsTransparent)
             {
                 SetTransparent();
@@ -362,11 +376,6 @@ namespace BlockageMonitor
                     transparentToolStripMenuItem.Image = Properties.Resources.Cancel64;
                 }
             }
-        }
-
-        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            this.Close();
         }
     }
 }

@@ -50,13 +50,12 @@
             this.mnuSettings = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.sensorsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.networkToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.transparentToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.btnAlarm = new System.Windows.Forms.Button();
-            this.btnPower = new System.Windows.Forms.Button();
             this.btnSettings = new System.Windows.Forms.Button();
-            this.transparentToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.dataSet1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataTable1)).BeginInit();
             this.mnuSettings.SuspendLayout();
@@ -166,6 +165,21 @@
             this.networkToolStripMenuItem.Text = "Modules";
             this.networkToolStripMenuItem.Click += new System.EventHandler(this.networkToolStripMenuItem_Click);
             // 
+            // transparentToolStripMenuItem
+            // 
+            this.transparentToolStripMenuItem.Name = "transparentToolStripMenuItem";
+            this.transparentToolStripMenuItem.Size = new System.Drawing.Size(181, 28);
+            this.transparentToolStripMenuItem.Text = "Transparent";
+            this.transparentToolStripMenuItem.Click += new System.EventHandler(this.transparentToolStripMenuItem_Click);
+            // 
+            // exitToolStripMenuItem
+            // 
+            this.exitToolStripMenuItem.Image = global::BlockageMonitor.Properties.Resources.FanOff;
+            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(181, 28);
+            this.exitToolStripMenuItem.Text = "Exit";
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            // 
             // contextMenuStrip1
             // 
             this.contextMenuStrip1.Name = "contextMenuStrip1";
@@ -185,6 +199,8 @@
             this.chart1.Size = new System.Drawing.Size(797, 200);
             this.chart1.TabIndex = 189;
             this.chart1.Text = "chart1";
+            this.chart1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.mouseMove_MouseDown);
+            this.chart1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.mouseMove_MouseMove);
             // 
             // btnAlarm
             // 
@@ -202,19 +218,6 @@
             this.btnAlarm.UseVisualStyleBackColor = false;
             this.btnAlarm.Click += new System.EventHandler(this.btnAlarm_Click);
             // 
-            // btnPower
-            // 
-            this.btnPower.BackColor = System.Drawing.Color.Transparent;
-            this.btnPower.FlatAppearance.BorderSize = 0;
-            this.btnPower.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnPower.Image = global::BlockageMonitor.Properties.Resources.FanOn;
-            this.btnPower.Location = new System.Drawing.Point(815, 154);
-            this.btnPower.Name = "btnPower";
-            this.btnPower.Size = new System.Drawing.Size(58, 58);
-            this.btnPower.TabIndex = 185;
-            this.btnPower.UseVisualStyleBackColor = false;
-            this.btnPower.Click += new System.EventHandler(this.btnPower_Click);
-            // 
             // btnSettings
             // 
             this.btnSettings.BackColor = System.Drawing.Color.Transparent;
@@ -231,21 +234,6 @@
             this.btnSettings.UseVisualStyleBackColor = false;
             this.btnSettings.Click += new System.EventHandler(this.btnSettings_Click);
             // 
-            // transparentToolStripMenuItem
-            // 
-            this.transparentToolStripMenuItem.Name = "transparentToolStripMenuItem";
-            this.transparentToolStripMenuItem.Size = new System.Drawing.Size(181, 28);
-            this.transparentToolStripMenuItem.Text = "Transparent";
-            this.transparentToolStripMenuItem.Click += new System.EventHandler(this.transparentToolStripMenuItem_Click);
-            // 
-            // exitToolStripMenuItem
-            // 
-            this.exitToolStripMenuItem.Image = global::BlockageMonitor.Properties.Resources.FanOff;
-            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(181, 28);
-            this.exitToolStripMenuItem.Text = "Exit";
-            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
-            // 
             // frmStart
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 24F);
@@ -253,7 +241,6 @@
             this.ClientSize = new System.Drawing.Size(881, 222);
             this.Controls.Add(this.chart1);
             this.Controls.Add(this.btnAlarm);
-            this.Controls.Add(this.btnPower);
             this.Controls.Add(this.btnSettings);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.HelpButton = true;
@@ -263,8 +250,11 @@
             this.MinimizeBox = false;
             this.Name = "frmStart";
             this.Text = "Blockage Monitor";
+            this.TopMost = true;
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmStart_FormClosed);
             this.Load += new System.EventHandler(this.frmStart_Load);
+            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.mouseMove_MouseDown);
+            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.mouseMove_MouseMove);
             this.Resize += new System.EventHandler(this.frmStart_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.dataSet1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataTable1)).EndInit();
@@ -291,7 +281,6 @@
         private System.Data.DataColumn dataColumn12;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Button btnSettings;
-        private System.Windows.Forms.Button btnPower;
         private System.Windows.Forms.Button btnAlarm;
         private System.Windows.Forms.ContextMenuStrip mnuSettings;
         private System.Windows.Forms.ToolStripMenuItem sensorsToolStripMenuItem;

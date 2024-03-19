@@ -65,7 +65,7 @@ namespace BlockageMonitor
         }
 
         public byte RateAverage
-        { get { return cRateAve; } }
+        { get {  return cRateAve; } }
 
         public DateTime ReceiveTime
         { get { return cReceiveTime; } set { cReceiveTime = value; } }
