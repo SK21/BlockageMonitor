@@ -16,6 +16,7 @@ namespace BlockageMonitor
         public clsSeedRows SeedRows;
         public clsAlarm SensorAlarm;
         public PGN32100 Sensors;
+        public PGN32200 Sensors200;
         public clsTools Tls;
         public UDPComm UDPaog;
         public UDPComm UDPsensors;
@@ -49,6 +50,7 @@ namespace BlockageMonitor
 
             SeedRows = new clsSeedRows(this, cRowCount);
             Sensors = new PGN32100(this);
+            Sensors200 = new PGN32200(this);
             AutoSteerPGN = new PGN254(this);
             BlockageModules = new clsModules(this, 16);
             SensorAlarm = new clsAlarm(this);

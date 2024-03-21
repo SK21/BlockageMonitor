@@ -151,6 +151,10 @@ namespace BlockageMonitor
                             mf.Sensors.ParseByteData(Data);
                             break;
 
+                        case 32200:
+                            mf.Sensors200.ParseByteData(Data);
+                            break;
+
                         case 33152: // AOG, 0x81, 0x80
                             switch (Data[3])
                             {

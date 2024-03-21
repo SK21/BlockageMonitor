@@ -100,6 +100,7 @@
     </Compile>
     <Compile Include="PGNs\PGN254.cs" />
     <Compile Include="PGNs\PGN32100.cs" />
+    <Compile Include="PGNs\PGN32200.cs" />
     <Compile Include="PGNs\PGN32503.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

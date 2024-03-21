@@ -60,7 +60,14 @@ namespace BlockageMonitor
             set
             {
                 cRate = value;
-                cRateAve = (byte)(cRateAve * 0.8 + value * 0.2);
+                if (value > 0)
+                {
+                    cRateAve = (byte)(cRateAve * 0.8 + value * 0.2);
+                }
+                else
+                {
+                    cRateAve = 0;
+                }
             }
         }
 
